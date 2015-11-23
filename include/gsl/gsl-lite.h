@@ -776,6 +776,13 @@ gsl_constexpr14 auto as_span( Cont & cont ) ->  span< typename Cont::value_type 
 { 
     return span< typename Cont::value_type >( cont );
 }
+
+template< class Cont >
+gsl_constexpr14 auto as_temp_span( const Cont & cont ) ->  span< std::add_const_t<typename Cont::value_type> > 
+{ 
+    return span< std::add_const_t<typename Cont::value_type> >( cont );
+}
+
 #else
 template< class T >
 span<T> as_span( std::vector<T> & cont )
