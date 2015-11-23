@@ -73,6 +73,8 @@
 
 #if gsl_CPP11_OR_GREATER
 # define gsl_HAVE_ALIAS_TEMPLATE  1
+#else
+#error Unsupported in this fork.
 #endif
 
 #if gsl_CPP11_OR_GREATER || gsl_COMPILER_MSVC_VERSION >= 10
@@ -456,10 +458,10 @@ private:
 //
 // span<> - A 1D view of contiguous T's, replace (*,len).
 //
-template< class T >
+template< class T, class Dummy = void >
 class span
 {
-    template< class U > friend class span;
+    template< class U, class DummyU > friend class span;
    
 public:
     typedef size_t size_type;
@@ -791,29 +793,32 @@ typedef wchar_t * zwstring;
 typedef const char * czstring;
 typedef const wchar_t * cwzstring;
 
-typedef span< char > string_span;
-typedef span< wchar_t > wstring_span;
-typedef span< const char > cstring_span;
-typedef span< const wchar_t > cwstring_span;
+#if gsl_HAVE_ALIAS_TEMPLATE
+    template<typename Dummy = void> using string_span = span< char, Dummy > ;
+    template<typename Dummy = void> using wstring_span = span< wchar_t, Dummy > ;
+    template<typename Dummy = void> using cstring_span = span< const char, Dummy > ;
+    template<typename Dummy = void> using cwstring_span = span< const wchar_t, Dummy > ;
+#else
+#endif
 
 // to_string() allow (explicit) conversions from string_span to string
 
-inline std::string to_string( string_span const & view )
+inline std::string to_string( string_span<> const & view )
 {
     return std::string( view.data(), view.length() );
 }
 
-inline std::string to_string( cstring_span const & view )
+inline std::string to_string( cstring_span<> const & view )
 {
     return std::string( view.data(), view.length() );
 }
 
-inline std::wstring to_string( wstring_span const & view )
+inline std::wstring to_string( wstring_span<> const & view )
 {
     return std::wstring( view.data(), view.length() );
 }
 
-inline std::wstring to_string( cwstring_span const & view )
+inline std::wstring to_string( cwstring_span<> const & view )
 {
     return std::wstring( view.data(), view.length() );
 }
